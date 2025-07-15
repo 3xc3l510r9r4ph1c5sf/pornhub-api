@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import PornHub from '@justalk/pornhub-api';
+import AdultDataLinkAPI from '@/lib/adultDataLink';
 
-const pornhub = new PornHub();
+// Initialize API client
+const getAPIClient = () => {
+  const apiKey = process.env.ADULTDATALINK_API_KEY;
+  if (!apiKey || apiKey === 'your_api_key_here') {
+    console.warn('AdultDataLink API key not configured. Using mock data.');
+  }
+  return new AdultDataLinkAPI(apiKey || 'mock-key');
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,69 +19,57 @@ export async function GET(request: NextRequest) {
 
     console.log('API Request:', { query, category, page });
 
-    let videos: any[] = [];
-
-    // Handle different search scenarios
-    if (category === 'all' && !query) {
-      // Get trending videos when no specific search
-      videos = await pornhub.search('', {
-        page,
-        order: 'mostviewed'
-      });
-    } else if (category === 'gay') {
-      // Search specifically in gay category
-      const searchQuery = query || 'gay';
-      videos = await pornhub.search(searchQuery, {
-        page,
-        category: 'gay',
-        order: 'mostviewed'
-      });
-    } else if (category === 'lesbian') {
-      const searchQuery = query || 'lesbian';
-      videos = await pornhub.search(searchQuery, {
-        page,
-        category: 'lesbian',
-        order: 'mostviewed'
-      });
-    } else if (category === 'straight') {
-      const searchQuery = query || 'straight';
-      videos = await pornhub.search(searchQuery, {
-        page,
-        category: 'straight',
-        order: 'mostviewed'
-      });
-    } else {
-      // General search with query
-      videos = await pornhub.search(query, {
-        page,
-        order: 'mostviewed'
-      });
+    // Validate inputs
+    if (page < 1 || page > 100) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid page number',
+        data: []
+      }, { status: 400 });
     }
 
-    // Transform the data to match our interface
-    const transformedVideos = videos.map((video: any) => ({
-      title: video.title || 'Untitled',
-      url: video.url || '#',
-      duration: video.duration || '00:00',
-      img_url: video.thumb || video.img_url || '/placeholder-video.jpg',
-      rating: video.rating || 0,
-      views: video.views || '0'
-    }));
+    const validCategories = ['all', 'gay', 'lesbian', 'straight', 'trans', 'milf', 'teen'];
+    if (!validCategories.includes(category.toLowerCase())) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid category',
+        data: []
+      }, { status: 400 });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: transformedVideos,
-      currentPage: page,
-      totalPages: Math.min(page + 5, 50) // Limit pagination for demo
-    });
+    // Initialize API client
+    const apiClient = getAPIClient();
 
-  } catch (error) {
-    console.error('API Error:', error);
+    // Perform search
+    const result = await apiClient.search(query, category, page);
+
+    // Add CORS headers for development
+    const response = NextResponse.json(result);
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    return response;
+
+  } catch (error: any) {
+    console.error('API Route Error:', error);
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch videos. This might be due to network restrictions or API limitations.',
+      error: error.message || 'Failed to fetch videos. Please check your API configuration.',
       data: []
     }, { status: 500 });
   }
+}
+
+// Handle OPTIONS requests for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }

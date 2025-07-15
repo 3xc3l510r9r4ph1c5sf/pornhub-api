@@ -10,10 +10,12 @@ interface CategoryFilterProps {
 }
 
 const categories = [
-  { value: 'all', label: 'All Categories', icon: '🔥' },
-  { value: 'gay', label: 'Gay', icon: '🏳️‍🌈' },
-  { value: 'lesbian', label: 'Lesbian', icon: '👩‍❤️‍👩' },
-  { value: 'straight', label: 'Straight', icon: '👫' },
+  { value: 'all', label: 'All Categories', icon: '🔥', description: 'Browse all content' },
+  { value: 'gay', label: 'Gay', icon: '🏳️‍🌈', description: 'Gay content' },
+  { value: 'lesbian', label: 'Lesbian', icon: '👩‍❤️‍👩', description: 'Lesbian content' },
+  { value: 'straight', label: 'Straight', icon: '👫', description: 'Straight content' },
+  { value: 'trans', label: 'Trans', icon: '🏳️‍⚧️', description: 'Trans content' },
+  { value: 'milf', label: 'MILF', icon: '👩‍🦳', description: 'Mature content' },
 ];
 
 export default function CategoryFilter({ selectedCategory, onCategoryChange, loading }: CategoryFilterProps) {
@@ -31,11 +33,14 @@ export default function CategoryFilter({ selectedCategory, onCategoryChange, loa
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={loading}
-        className="btn-secondary flex items-center gap-3 min-w-[160px] justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-secondary flex items-center gap-3 min-w-[180px] justify-between disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">{selectedCategoryData.icon}</span>
-          <span>{selectedCategoryData.label}</span>
+          <div className="text-left">
+            <div className="font-medium">{selectedCategoryData.label}</div>
+            <div className="text-xs text-white/60">{selectedCategoryData.description}</div>
+          </div>
         </div>
         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -51,7 +56,13 @@ export default function CategoryFilter({ selectedCategory, onCategoryChange, loa
               }`}
             >
               <span className="text-lg">{category.icon}</span>
-              <span>{category.label}</span>
+              <div>
+                <div className="font-medium">{category.label}</div>
+                <div className="text-xs opacity-70">{category.description}</div>
+              </div>
+              {selectedCategory === category.value && (
+                <div className="ml-auto w-2 h-2 bg-primary-orange rounded-full"></div>
+              )}
             </button>
           ))}
         </div>

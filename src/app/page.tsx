@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { VideoData, ApiResponse } from '@/types';
+import { VideoMetadata, SearchResponse } from '@/lib/adultDataLink';
 import VideoCard from '@/components/VideoCard';
 import SearchBar from '@/components/SearchBar';
 import CategoryFilter from '@/components/CategoryFilter';
@@ -9,16 +9,17 @@ import Pagination from '@/components/Pagination';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorMessage from '@/components/ErrorMessage';
 import SafetyDisclaimer from '@/components/SafetyDisclaimer';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Settings, Info } from 'lucide-react';
 
 export default function HomePage() {
-  const [videos, setVideos] = useState<VideoData[]>([]);
+  const [videos, setVideos] = useState<VideoMetadata[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [apiStatus, setApiStatus] = useState<'unknown' | 'mock' | 'real'>('unknown');
 
   const fetchVideos = async (query: string = '', category: string = 'all', page: number = 1) => {
     setLoading(true);
@@ -32,12 +33,19 @@ export default function HomePage() {
       });
 
       const response = await fetch(`/api/search?${params}`);
-      const data: ApiResponse = await response.json();
+      const data: SearchResponse = await response.json();
 
       if (data.success && data.data) {
         setVideos(data.data);
         setCurrentPage(data.currentPage || page);
         setTotalPages(data.totalPages || 1);
+        
+        // Detect if using mock data
+        if (data.error && data.error.includes('mock data')) {
+          setApiStatus('mock');
+        } else {
+          setApiStatus('real');
+        }
       } else {
         setError(data.error || 'Failed to fetch videos');
         setVideos([]);
@@ -45,6 +53,7 @@ export default function HomePage() {
     } catch (err) {
       setError('Network error. Please check your connection and try again.');
       setVideos([]);
+      setApiStatus('unknown');
     } finally {
       setLoading(false);
     }
@@ -85,12 +94,31 @@ export default function HomePage() {
         {/* Header */}
         <header className="glass-hover sticky top-0 z-40 border-b border-white/10">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-primary-orange to-primary-pink rounded-lg flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold gradient-text">VideoHub</h1>
+                <div>
+                  <h1 className="text-2xl font-bold gradient-text">VideoHub</h1>
+                  <p className="text-xs text-white/60">AdultDataLink Integration</p>
+                </div>
+              </div>
+              
+              {/* API Status Indicator */}
+              <div className="flex items-center gap-2">
+                {apiStatus === 'mock' && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full">
+                    <Settings className="w-4 h-4 text-yellow-400" />
+                    <span className="text-xs text-yellow-300">Demo Mode</span>
+                  </div>
+                )}
+                {apiStatus === 'real' && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-300">Live API</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -101,13 +129,27 @@ export default function HomePage() {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 text-shadow">
-              Discover Amazing
-              <span className="gradient-text block">Content</span>
+              Discover Premium
+              <span className="gradient-text block">Adult Content</span>
             </h2>
             <p className="text-white/70 text-lg max-w-2xl mx-auto mb-8">
-              Explore a vast collection of videos with our modern, responsive interface. 
-              Search by keyword or browse by category.
+              Powered by AdultDataLink API with advanced search capabilities and category filtering. 
+              Built with Next.js and modern web technologies.
             </p>
+            
+            {/* API Configuration Notice */}
+            {apiStatus === 'mock' && (
+              <div className="glass p-4 max-w-md mx-auto mb-8">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300 font-medium">Configuration Required</span>
+                </div>
+                <p className="text-white/70 text-sm">
+                  Add your AdultDataLink API key to <code className="bg-white/10 px-1 rounded">.env.local</code> for live data.
+                  Currently showing demo content.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Search and Filter Controls */}
@@ -152,7 +194,7 @@ export default function HomePage() {
                 {/* Video Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {videos.map((video, index) => (
-                    <VideoCard key={`${video.url}-${index}`} video={video} />
+                    <VideoCard key={`${video.id}-${index}`} video={video} />
                   ))}
                 </div>
 
@@ -180,16 +222,18 @@ export default function HomePage() {
               </div>
               
               <p className="text-white/60 text-sm max-w-2xl mx-auto">
-                This is a demonstration application showcasing modern web development techniques 
-                including Next.js, Tailwind CSS, and API integration. Built with glassmorphism design principles.
+                Modern adult content platform built with Next.js, TypeScript, and AdultDataLink API. 
+                Features glassmorphism UI, SWC compilation fallbacks, and comprehensive error handling.
               </p>
               
               <div className="flex items-center justify-center gap-6 text-xs text-white/40">
                 <span>© 2024 VideoHub Demo</span>
                 <span>•</span>
-                <span>Educational Purpose Only</span>
+                <span>AdultDataLink Integration</span>
                 <span>•</span>
                 <span>18+ Content Warning</span>
+                <span>•</span>
+                <span>Educational Purpose</span>
               </div>
             </div>
           </div>

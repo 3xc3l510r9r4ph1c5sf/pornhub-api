@@ -1,11 +1,11 @@
 'use client';
 
-import { VideoData } from '@/types';
-import { Play, Clock, Eye } from 'lucide-react';
+import { VideoMetadata } from '@/lib/adultDataLink';
+import { Play, Clock, Eye, Star } from 'lucide-react';
 import { useState } from 'react';
 
 interface VideoCardProps {
-  video: VideoData;
+  video: VideoMetadata;
 }
 
 export default function VideoCard({ video }: VideoCardProps) {
@@ -22,8 +22,8 @@ export default function VideoCard({ video }: VideoCardProps) {
   };
 
   const handleWatchClick = () => {
-    if (video.url && video.url !== '#') {
-      window.open(video.url, '_blank', 'noopener,noreferrer');
+    if (video.link && video.link !== '#') {
+      window.open(video.link, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -40,7 +40,7 @@ export default function VideoCard({ video }: VideoCardProps) {
           
           {!imageError ? (
             <img
-              src={video.img_url}
+              src={video.thumbnail}
               alt={video.title}
               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 ${
                 imageLoading ? 'opacity-0' : 'opacity-100'
@@ -59,6 +59,13 @@ export default function VideoCard({ video }: VideoCardProps) {
             <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {video.duration}
+            </div>
+          )}
+          
+          {/* Category badge */}
+          {video.category && video.category !== 'general' && (
+            <div className="absolute top-2 left-2 bg-primary-orange/90 text-white text-xs px-2 py-1 rounded-full font-medium">
+              {video.category.toUpperCase()}
             </div>
           )}
           
@@ -87,7 +94,7 @@ export default function VideoCard({ video }: VideoCardProps) {
             
             {video.rating && video.rating > 0 && (
               <div className="flex items-center gap-1">
-                <span className="text-primary-orange">★</span>
+                <Star className="w-3 h-3 text-primary-orange" fill="currentColor" />
                 <span>{video.rating}%</span>
               </div>
             )}
@@ -97,8 +104,9 @@ export default function VideoCard({ video }: VideoCardProps) {
           <button
             onClick={handleWatchClick}
             className="w-full btn-primary text-sm py-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300"
+            disabled={video.link === '#'}
           >
-            Watch Video
+            {video.link === '#' ? 'Demo Video' : 'Watch Video'}
           </button>
         </div>
       </div>
