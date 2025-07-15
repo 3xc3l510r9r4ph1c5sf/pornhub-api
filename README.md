@@ -1,147 +1,176 @@
-# PornHub Unofficial API
+# VideoHub - Next.js PornHub API Integration
 
-Unofficial API for pornhub.com in Python
+A modern, responsive web application built with Next.js and Tailwind CSS, featuring a glassmorphism UI design inspired by contemporary adult content platforms. This application demonstrates advanced web development techniques including API integration, server-side rendering, and modern UI/UX patterns.
 
-### *Pull requests are welcome!!!*
+## 🚀 Features
 
-I find it quite difficult to make time for an active development on this project, so I will be more than happy to merge your pull requests. Thank you all for supporting this project!
+- **Modern Glassmorphism UI**: Semi-transparent backgrounds, blur effects, and vibrant orange/pink accents
+- **Responsive Design**: Optimized for mobile, tablet, and desktop viewing
+- **Advanced Search & Filtering**: Search by keywords and filter by categories including Gay, Lesbian, Straight
+- **Server-Side Rendering**: Built with Next.js for optimal performance and SEO
+- **Real-time API Integration**: Fetches video metadata using the PornHub API
+- **Pagination Support**: Navigate through multiple pages of results
+- **Loading States & Error Handling**: Comprehensive user feedback and error management
+- **Safety Features**: Adult content disclaimer and age verification
 
-## Install
+## 🛠️ Tech Stack
 
-```bash
-pip3 install pornhubapi
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS with custom glassmorphism utilities
+- **API Integration**: @justalk/pornhub-api
+- **Icons**: Lucide React
+- **Fonts**: Inter (Google Fonts)
+
+## 📦 Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd videohub-app
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser** and navigate to `http://localhost:3000`
+
+## 🔧 Configuration
+
+### Tailwind CSS Setup
+
+The application uses custom Tailwind CSS utilities for glassmorphism effects:
+
+```css
+.glass {
+  @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl;
+}
+
+.glass-hover {
+  @apply glass transition-all duration-300 hover:bg-white/15 hover:border-white/30;
+}
 ```
 
-## How to use
+### API Configuration
 
-#### Create client
+The PornHub API integration is handled through Next.js API routes in `/pages/api/search.js`. The API supports:
 
-```python
-import pornhub
-client = pornhub.PornHub()
+- **Search by keyword**: General text-based search
+- **Category filtering**: Gay, Lesbian, Straight, All categories
+- **Pagination**: Navigate through multiple result pages
+- **Sorting**: Most viewed, trending, recent uploads
+
+### Environment Variables
+
+No environment variables are required for basic functionality. However, for production deployment, consider adding:
+
+```env
+NEXT_PUBLIC_APP_URL=https://your-domain.com
 ```
 
-#### Create client with proxy
+## 🎨 Design System
 
-```python
-import pornhub
-# With proxy, given a Proxy IP and Port. For the countries with restricted access like Turkey, etc.
-client = pornhub.PornHub("5.135.164.72", 3128)
+### Color Palette
+- **Primary Orange**: `#ff9000`
+- **Primary Pink**: `#ff6b9d`
+- **Dark Background**: `#1a1a1a`
+- **Darker Background**: `#0f0f0f`
+
+### Typography
+- **Font Family**: Inter (Google Fonts)
+- **Weights**: 300, 400, 500, 600, 700
+
+### Glassmorphism Effects
+- **Background**: `rgba(255, 255, 255, 0.1)`
+- **Backdrop Filter**: `blur(12px) saturate(180%)`
+- **Border**: `1px solid rgba(255, 255, 255, 0.2)`
+
+## 🔍 API Usage Examples
+
+### Basic Search
+```javascript
+// Search for videos with keyword
+const response = await fetch('/api/search?query=keyword&page=1');
 ```
 
-#### Grab stars
-
-The request can be sorted by: `view`, `trend`, `subs`, `alpha`, `videos`, `random`
-
-```python
-for star in client.getStars(10, sort_by="view"):
-    print(star)
-    print(star["name"])
+### Category Filtering
+```javascript
+// Search in specific category
+const response = await fetch('/api/search?category=gay&page=1');
 ```
 
-#### Create client with search keywords
-
-```python
-keywords = ["word1", "word2"]
-client = pornhub.PornHub(keywords)
-
-# if using a proxy
-client = pornhub.PornHub(keywords, "5.135.164.72", 3128)
-# or
-client = pornhub.PornHub(ProxyIP="5.135.164.72", ProxyPort=3128, keywords=["word1", "word2"])
-
-for video in client.getVideos(10, page=2):
-    print(video)
-    print(video["url"])
+### Combined Search
+```javascript
+// Search with keyword in specific category
+const response = await fetch('/api/search?query=keyword&category=lesbian&page=2');
 ```
 
-#### Sort Video by parameter
+## 🚨 Important Notes
 
-When keywords are set: `view`, `rate`, `long`, `recent` 
-```python
-keywords = ["word1", "word2"]
-client = pornhub.PornHub(keywords)
+### Legal Compliance
+- This application is intended for educational and demonstration purposes
+- Users must be 18+ years of age
+- Ensure compliance with local laws and regulations
+- Adult content warning is displayed on first visit
 
-for video in client.getVideos(10, page=2, sort_by="long"):
-    print(video)
-    print(video["url"])
-```
+### Network Considerations
+- Some regions may have restricted access to adult content APIs
+- Consider using VPN or proxy services if needed
+- Respect API rate limits and server resources
+- The API may have regional restrictions
 
-When keywords are not set: `view`, `rate`, `long`, `new`, `hot`
-```python
-client = pornhub.PornHub()
+### Production Deployment
+- Add proper error logging and monitoring
+- Implement caching for better performance
+- Consider CDN integration for global access
+- Add proper SEO meta tags and structured data
 
-for video in client.getVideos(10, page=2, sort_by="hot"):
-    print(video)
-    print(video["url"])
-```
+## 🔒 Privacy & Security
 
-#### Take full information about all videos
-Parameter `full_data` allows you to get complete information about the video, but its much more slower due to every page needs to be opened
+- No user data is stored or tracked
+- All API calls are made server-side to protect user privacy
+- No cookies or local storage used for tracking
+- External links open in new tabs with security attributes
 
-```python
-keywords = ["word1", "word2"]
-client = pornhub.PornHub(keywords)
+## 🤝 Contributing
 
-for video in client.getVideos(10, page=2, full_data=True):
-  print(video)
-  print(video["upload_date"])
-```
+This is a demonstration project. For educational purposes, you can:
 
-#### Get more information about the single video
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-Method `getVideo(url, viewkey)` gives more detail information about a single video
+## 📄 License
 
-```python
-client = pornhub.PornHub()
+This project is for educational and demonstration purposes only. Please respect:
+- PornHub's Terms of Service
+- API usage guidelines
+- Local laws and regulations
+- Age restrictions (18+)
 
-# You can input the full video url, like that
-video = client.getVideo("https://www.pornhub.com/view_video.php?viewkey=SOMEKEY")
-# Or that
-video = client.getVideo(url="https://www.pornhub.com/view_video.php?viewkey=SOMEKEY")
-# Or input only viewkey, like that
-video = client.getVideo(viewkey="SOMEKEY")
+## 🆘 Troubleshooting
 
-print(video)
-print(video["title"])
-```
+### Common Issues
 
-The method return a dictionary with keywords:
-1. `title` (type: string) - Video title
-2. `views` (type: string) - Rounded number of views, for example "2M"
-3. `accurate_views` (type: integer) - Full number of views, for example "123456789". When video don't have many views `views`=`accurate_views`
-4. `rating` (type: integer) - Video rating in percent
-5. `duration` (type: string) - Video duration in format "hh:mm:ss"
-6. `loaded` (type: string) - When the video was uploaded, for example "2 months ago"
-7. `upload_date` (type: string) - Video upload date in format "yyyy-mm-dd"
-8. `likes` (type: string) - Similar like `views`
-9. `accurate_likes` (type: integer) - Similar like `accurate_views`
-10. `dislikes` (type: string) - Similar like `views`
-11. `accurate_dislikes` (type: integer) - Similar like `accurate_views`
-12. `favorite` (type: string) - How many times added to favorites, rounded. For example "2K"
-13. `author` (type: string) - Video author (channel)
-14. `pornstars` (type: list) - Video stars
-15. `categories` (type: list) - Video categories
-16. `tags` (type: list) - Video tags
-17. `production` (type: string) - Video production (Professional or Homemade)
-19. `url` (type: string) - URL to Video
-18. `img_url` (type: string) - URL to Preview Image of Video
-19. `embed_url` (type: string) - URL to Video Player
+1. **API Not Working**: Check network connectivity and regional restrictions
+2. **Images Not Loading**: Verify CORS settings and image URLs
+3. **Slow Performance**: Consider implementing caching and image optimization
+4. **Build Errors**: Ensure all dependencies are properly installed
 
-If the video is not available in your country, in `title` will **"Video not available in your country"**, in others keys will `None`
+### Support
 
-## Contributors
+For technical issues related to the code implementation, please refer to:
+- Next.js Documentation
+- Tailwind CSS Documentation
+- React Documentation
 
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/SashaSZ"><img src="https://avatars.githubusercontent.com/u/88130296?v=4" width="100px;" alt=""/><br /><sub><b>SashaSZ</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/CprogrammerIbrahim"><img src="https://avatars1.githubusercontent.com/u/40497100?s=400&v=4" width="100px;" alt=""/><br /><sub><b>Ibrahim Ipek</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/kittinan"><img src="https://avatars0.githubusercontent.com/u/144775?s=400&v=4" width="100px;" alt=""/><br /><sub><b>Kittinan</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/fantomnotabene"><img src="https://avatars2.githubusercontent.com/u/9576189?s=460&u=7a9639ad287e7070220b22975dbab87b0228611f&v=4" width="100px;" alt=""/><br /><sub><b>Елизаров Роман Русланович</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/IThinkImOKAY"><img src="https://avatars3.githubusercontent.com/u/61555147?s=460&u=34c57df77de20121b0e298effe4092e32dd16ee1&v=4" width="100px;" alt=""/><br /><sub><b>IThinkImOKAY</b></sub></a><br /></td>
-  </tr>
-<table>
+---
 
-## License
-
-MIT license
+**⚠️ Disclaimer**: This application is for educational and demonstration purposes only. It showcases modern web development techniques and is not intended for commercial use. Users must comply with local laws and age restrictions.
